@@ -8,22 +8,42 @@ const Demo = () => {
     url: "",
     summary: "",
   })
+  const [allArticles, setAllArticles] = useState([])
 
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery()
 
+  // 初次加载时, 从 localstorage 中获取文章摘要历史记录
+  useEffect(() => {
+    const articlesFromLocalStorage = JSON.parse(localStorage.getItem('articles'))
+
+    if(articlesFromLocalStorage){
+      setAllArticles(articlesFromLocalStorage)
+    }
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // alert("submit")
+
+    const existingArticle = allArticles.find(
+      item => item.url === article.url
+    )
+    if(existingArticle) return setArticle(existingArticle)
+
     const { data } = await getSummary({
       articleUrl: article.url,
     })
-    console.log('---getSummary data:', data);
     if (data?.summary) {
       const newArticle = { ...article, summary: data.summary }
-      setArticle(newArticle)
+      const updatedAllArticles = [newArticle, ...allArticles]
+
       console.log(newArticle)
+      // 更新 state 和localstorage
+      setArticle(newArticle)
+      setAllArticles(updatedAllArticles)
+      localStorage.setItem('articles', JSON.stringify(updatedAllArticles))
     }
   }
+
 
   return (
     <section className="mt-16 w-full max-w-xl">
