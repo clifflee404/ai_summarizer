@@ -51,6 +51,11 @@ const Demo = () => {
     setTimeout(() => setCopied(false), 3000)
   }
 
+  const handleKeyDown = (e) => {
+    if(e.keyCode === 13){
+      handleSubmit(e)
+    }
+  }
 
   return (
     <section className="mt-16 w-full max-w-xl">
@@ -76,6 +81,7 @@ const Demo = () => {
                 url: e.target.value,
               })
             }
+            onKeyDown={handleKeyDown}
             required
             className="url_input peer"
           />
