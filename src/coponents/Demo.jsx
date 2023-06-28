@@ -1,15 +1,30 @@
 import React, { useState, useEffect } from "react"
 import { copy, linkIcon, loader, tick } from "../assets"
 
+import { useLazyGetSummaryQuery } from "../services/article"
+
 const Demo = () => {
   const [article, setArticle] = useState({
     url: "",
-    summary: ""
+    summary: "",
   })
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    alert("submit")
+
+  const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    // alert("submit")
+    const { data } = await getSummary({
+      articleUrl: article.url,
+    })
+    console.log('---getSummary data:', data);
+    if (data?.summary) {
+      const newArticle = { ...article, summary: data.summary }
+      setArticle(newArticle)
+      console.log(newArticle)
+    }
   }
+
   return (
     <section className="mt-16 w-full max-w-xl">
       {/* 搜索 */}
@@ -28,10 +43,12 @@ const Demo = () => {
             type="url"
             placeholder="请粘贴文章链接"
             value={article.url}
-            onChange={(e) => setArticle({
-              ...article,
-              url: e.target.value
-            })}
+            onChange={(e) =>
+              setArticle({
+                ...article,
+                url: e.target.value,
+              })
+            }
             required
             className="url_input peer"
           />
@@ -44,6 +61,8 @@ const Demo = () => {
         </form>
         {/* todo 浏览历史 */}
       </div>
+
+      {/* 展示摘要结果 */}
     </section>
   )
 }
